@@ -56,25 +56,34 @@ public class ContactManager {
         }
     }
     private static void loadContactsFromFile() {
+        int loadedContactCount = 0;
         getFilePath();
         try {
-            contactBook.load(filePath);
-            System.out.printf("%d contacts loaded.\n", contactBook.size());
+            loadedContactCount = contactBook.load(filePath);
+            System.out.printf("%d contacts loaded.\n", loadedContactCount);
         } catch(IOException e) {
-            System.out.println(e.toString());
+            System.out.println(e.getMessage());
         }
     }
     private static void viewAllContacts() {
         ArrayList<Contact> allContacts = contactBook.getAll();
-        for (int i = 0; i < allContacts.size(); i++) {
-            System.out.printf("[%d] %s\n", i, allContacts.get(i));
+        if (allContacts.size() > 0) {
+            for (int i = 0; i < allContacts.size(); i++) {
+                System.out.printf("[%d] %s\n", i, allContacts.get(i));
+            }
+        } else {
+            System.out.println("No contact, yet.");
         }
     }
     private static void addNewContact() {
         System.out.print("Enter new contact (format: name; phone; email; address): ");
         String contactRawInformation = userInputScanner.nextLine();
-        //validate contactRawInformation
-        contactBook.add(contactRawInformation);
+        try {
+            contactBook.add(contactRawInformation);
+            System.out.println("Contact added.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
     private static void editContact() {
 //        //implement this
@@ -101,8 +110,12 @@ public class ContactManager {
     private static void deleteContact() {
         System.out.print("Enter ID of the contact you want to delete: ");
         String contactID = userInputScanner.nextLine();
-        //validate
-        contactBook.delete(Integer.parseInt(contactID));
+        try {
+            contactBook.delete(Integer.parseInt(contactID));
+            System.out.println("Contact deleted.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
     private static void searchContacts() {
         System.out.print("Enter search query: ");
@@ -123,8 +136,8 @@ public class ContactManager {
         getFilePath();
         try {
             contactBook.save(filePath);
-            System.out.printf("%d contacts saved to file at %s.\n", contactBook.size(),
-                                                                    filePath);
+            System.out.printf("%d contacts saved to file at \"%s\".\n", contactBook.size(),
+                                                                        filePath);
         } catch(IOException e) {
             System.out.println("Error with your file path.");
         }

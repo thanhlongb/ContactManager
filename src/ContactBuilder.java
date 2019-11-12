@@ -5,13 +5,17 @@ import java.util.Scanner;
 public class ContactBuilder {
     private ArrayList<Contact> contacts = new ArrayList<Contact>();
     public ContactBuilder() {}
-    public void load(String inputFilePath) throws IOException {
-        //try and catch
-        String rawInformation;
-        BufferedReader buffer = new BufferedReader(new FileReader(inputFilePath));
-        while ((rawInformation = buffer.readLine()) != null) {
+    public int load(String inputFilePath) throws FileNotFoundException {
+        int addedContactCount = 0;
+        File inputFile = new File(inputFilePath);
+        Scanner inputFileScanner = new Scanner(inputFile);
+        while (inputFileScanner.hasNextLine()) {
+            String rawInformation = inputFileScanner.nextLine();
             this.contacts.add(new Contact(rawInformation));
+            addedContactCount++;
         }
+        inputFileScanner.close();
+        return addedContactCount;
     }
     public int size() {
         return this.contacts.size();
@@ -19,24 +23,31 @@ public class ContactBuilder {
     public ArrayList<Contact> getAll() {
         return this.contacts;
     }
-    public Contact get(int contactID) {
-        //validate
+    public Contact get(int contactID) throws IllegalArgumentException {
+        if (!isValidContactID(contactID)) throw new IllegalArgumentException("Invalid contact ID.");
         return this.contacts.get(contactID);
     }
-    public void add(String rawInformation) {
-        //do some more validations
+    public void add(String rawInformation) throws IllegalArgumentException {
         this.contacts.add(new Contact(rawInformation));
     }
-    public void add(String name, String phone, String email, String address) {
-        //catch some error
+    public void add(String name, String phone, String email, String address) throws IllegalArgumentException {
         this.contacts.add(new Contact(name, phone, email, address));
     }
-    public void edit(int contactID, String newValue) {
-        //catch some error
+    public void editName(int contactID, String newValue) throws IllegalArgumentException {
+        this.contacts.get(contactID).setName(newValue);
+    }
+    public void editPhone(int contactID, String newValue) throws IllegalArgumentException {
+        this.contacts.get(contactID).setPhone(newValue);
 
     }
-    public void delete(int contactID) {
-        //validate contactID
+    public void editEmail(int contactID, String newValue) throws IllegalArgumentException {
+        this.contacts.get(contactID).setEmail(newValue);
+    }
+    public void editAddress(int contactID, String newValue) throws IllegalArgumentException {
+        this.contacts.get(contactID).setAddress(newValue);
+    }
+    public void delete(int contactID) throws IllegalArgumentException {
+        if (!isValidContactID(contactID)) throw new IllegalArgumentException("Invalid contact ID.");
         this.contacts.remove(contactID);
     }
     public ArrayList<Integer> search(String query) {
@@ -48,16 +59,23 @@ public class ContactBuilder {
         }
         return searchResults;
     }
-    public void sort(Contact.Field field) {
+    public void sort() {
         //implement this
     }
     public void save(String outputFilePath) throws IOException {
-        //try catch
-        //override current file content
-        FileWriter fileWriter = new FileWriter(outputFilePath);
+        FileWriter outputFile = new FileWriter(outputFilePath);
         for (Contact contact:this.contacts) {
-            fileWriter.write(contact.toString() + "\n");
+            outputFile.write(contact.toString() + "\n");
         }
-        fileWriter.close();
+        outputFile.close();
+    }
+    private boolean isValidContactID(int contactID) {
+        if (contactID < 0) {
+            return false;
+        }
+        if (contactID > this.contacts.size()) {
+            return false;
+        }
+        return true;
     }
 }
