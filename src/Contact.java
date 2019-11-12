@@ -1,10 +1,11 @@
 //find a way to validate properties
 //when they are passed into class
 public class Contact {
-    private String name;
-    private String phone;
-    private String email;
-    private String address;
+    public enum Field {NAME, PHONE, EMAIL, ADDRESS};
+    private String name = "";
+    private String phone = "";
+    private String email = "";
+    private String address = "";
     Contact (String rawInformation) {
         //do some more validations
         String[] userInformation = rawInformation.split("; ");
@@ -20,11 +21,37 @@ public class Contact {
         this.email = email;
         this.address = address;
     }
-    public void edit(String name, String phone, String email, String address) {
-        this.name = name;
-        this.phone = phone;
-        this.email = email;
-        this.address = address;
+    public String getName() {
+        return this.name;
+    }
+    public String getPhone() {
+        return this.phone;
+    }
+    public String getEmail() {
+        return this.email;
+    }
+    public String getAddress() {
+        return this.address;
+    }
+    public void setName(String name) {
+        if (isValidName(name)) {
+            this.name = name;
+        }
+    }
+    public void setPhone(String phone) {
+        if (isValidPhone(phone)) {
+            this.phone = phone;
+        }
+    }
+    public void setEmail(String email) {
+        if (isValidEmail(email)) {
+            this.email = email;
+        }
+    }
+    public void setAddress(String address) {
+        if (isValidAddress(address)) {
+            this.address = address;
+        }
     }
     private static boolean isValidName(String name) {
         if (name.matches("([A-Za-z]+\\s?)+")) {
@@ -50,9 +77,10 @@ public class Contact {
         }
         return false;
     }
+
     @Override
     public String toString() {
-        return String.format("%s %s %s %s\n", this.name,
+        return String.format("%s; %s; %s; %s",this.name,
                                               this.phone,
                                               this.email,
                                               this.address);
