@@ -5,13 +5,17 @@ import java.util.Scanner;
 public class ContactBuilder {
     private ArrayList<Contact> contacts = new ArrayList<Contact>();
     public ContactBuilder() {}
-    public int load(String inputFilePath) throws FileNotFoundException {
+    public int load(String inputFilePath) throws IOException {
         int addedContactCount = 0;
         File inputFile = new File(inputFilePath);
         Scanner inputFileScanner = new Scanner(inputFile);
         while (inputFileScanner.hasNextLine()) {
             String rawInformation = inputFileScanner.nextLine();
-            this.contacts.add(new Contact(rawInformation));
+            try {
+                this.contacts.add(new Contact(rawInformation));
+            } catch (IllegalArgumentException e) {
+                throw new IOException("Contact record at line " + (addedContactCount + 1) + " has invalid format.");
+            }
             addedContactCount++;
         }
         inputFileScanner.close();
@@ -27,9 +31,6 @@ public class ContactBuilder {
         if (!isValidContactID(contactID)) throw new IllegalArgumentException("Invalid contact ID.");
         return this.contacts.get(contactID);
     }
-    public void add(String rawInformation) throws IllegalArgumentException {
-        this.contacts.add(new Contact(rawInformation));
-    }
     public void add(String name, String phone, String email, String address) throws IllegalArgumentException {
         this.contacts.add(new Contact(name, phone, email, address));
     }
@@ -38,7 +39,6 @@ public class ContactBuilder {
     }
     public void editPhone(int contactID, String newValue) throws IllegalArgumentException {
         this.contacts.get(contactID).setPhone(newValue);
-
     }
     public void editEmail(int contactID, String newValue) throws IllegalArgumentException {
         this.contacts.get(contactID).setEmail(newValue);
@@ -70,10 +70,7 @@ public class ContactBuilder {
         outputFile.close();
     }
     private boolean isValidContactID(int contactID) {
-        if (contactID < 0) {
-            return false;
-        }
-        if (contactID > this.contacts.size()) {
+        if (contactID < 0 || contactID > this.contacts.size()) {
             return false;
         }
         return true;

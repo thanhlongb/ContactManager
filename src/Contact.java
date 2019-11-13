@@ -1,10 +1,11 @@
 public class Contact {
+    public static final String DELIMITER = "; ";
     private String name = "";
     private String phone = "";
     private String email = "";
     private String address = "";
     Contact (String rawInformation) throws IllegalArgumentException {
-        String[] userInformation = rawInformation.split("; ");
+        String[] userInformation = rawInformation.split(DELIMITER);
         if (userInformation.length != 4) throw new IllegalArgumentException("Invalid contact information.");
         if (!isValidName(userInformation[0])) throw new IllegalArgumentException("Invalid name.");
         if (!isValidPhone(userInformation[1])) throw new IllegalArgumentException("Invalid phone number.");
@@ -80,10 +81,10 @@ public class Contact {
 
     @Override
     public String toString() {
-        return String.format("%s;%s;%s;%s", this.name,
-                                            this.phone,
-                                            this.email,
-                                            this.address);
+        return String.format("%s%s%s%s%s%s%s", this.name, DELIMITER,
+                                               this.phone, DELIMITER,
+                                               this.email, DELIMITER,
+                                               this.address);
     }
 
 

@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ContactManager {
@@ -76,29 +77,61 @@ public class ContactManager {
         }
     }
     private static void addNewContact() {
-        System.out.print("Enter new contact (format: name; phone; email; address): ");
-        String contactRawInformation = userInputScanner.nextLine();
+        System.out.print("Contact name: ");
+        String name = userInputScanner.nextLine();
+        System.out.print("Contact phone number: ");
+        String phone = userInputScanner.nextLine();
+        System.out.print("Contact email: ");
+        String email = userInputScanner.nextLine();
+        System.out.print("Contact address: ");
+        String address = userInputScanner.nextLine();
         try {
-            contactBook.add(contactRawInformation);
+            contactBook.add(name, phone, email, address);
             System.out.println("Contact added.");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
     }
     private static void editContact() {
-//        //implement this
-//        System.out.print("Enter ID of the contact you want to edit: ");
-//        String contactID = userInputScanner.nextLine();
-//        //validate
-//        printContactInformation(contactBook.get(Integer.parseInt(contactID)));
-//        int userOption = userInputScanner.nextInt();
-//        String newValue = userInputScanner.nextLine();
-//        switch (userOption) {
-//            case 0:
-//                contactBook.edit(contactID, newValue);
-//                break;
-//
-//        }
+        int userOption = 0, contactID = 0;
+        System.out.print("Enter ID of the contact you want to edit: ");
+        try {
+            contactID = userInputScanner.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input data type (supposed to be int).");
+            return;
+        }
+        try {
+            printContactInformation(contactBook.get(contactID));
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+        System.out.print("Select the field you want to edit (0 to 3): ");
+        try {
+            userOption = userInputScanner.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input data type (supposed to be int).");
+            return;
+        }
+        System.out.print("Enter new value for the selected field: ");
+        String newValue = userInputScanner.nextLine();
+        switch (userOption) {
+            case 0:
+                contactBook.editName(contactID, newValue);
+                break;
+            case 1:
+                contactBook.editPhone(contactID, newValue);
+                break;
+            case 2:
+                contactBook.editEmail(contactID, newValue);
+                break;
+            case 3:
+                contactBook.editAddress(contactID, newValue);
+                break;
+            default:
+                break;
+        }
     }
     private static void printContactInformation(Contact contact) {
         System.out.printf("[0] %s\n[1] %s\n[2] %s\n[3] %s\n",
