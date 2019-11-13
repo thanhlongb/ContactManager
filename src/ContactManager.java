@@ -6,12 +6,12 @@ import java.util.Scanner;
 public class ContactManager {
     private static String userInput = ""; //consider using StringBuffer/Builder
     private static ContactBuilder contactBook = new ContactBuilder();
-    private static String filePath = ""; //consider using StringBuffer/Builder
     private static Scanner userInputScanner = new Scanner(System.in);
     public static void main(String[] args) {
         printUI();
         while (true) {
-            getUserInput();
+            System.out.print("Select a function (1-9): ");
+            userInput = userInputScanner.nextLine();
             if (!isValidUserInput()) {
                 System.out.println("Invalid user input.");
                 continue;
@@ -31,10 +31,6 @@ public class ContactManager {
                 "8. Save contacts to file\n" +
                 "9. Quit";
         System.out.println(options);
-    }
-    private static void getUserInput() {
-        System.out.print("Select a function (1-9): ");
-        userInput = userInputScanner.nextLine();
     }
     private static boolean isValidUserInput() {
         if (userInput.matches("[1-9]")) {
@@ -58,7 +54,8 @@ public class ContactManager {
     }
     private static void loadContactsFromFile() {
         int loadedContactCount = 0;
-        getFilePath();
+        System.out.print("Enter your file path: ");
+        String filePath = userInputScanner.nextLine();
         try {
             loadedContactCount = contactBook.load(filePath);
             System.out.printf("%d contacts loaded.\n", loadedContactCount);
@@ -163,10 +160,18 @@ public class ContactManager {
         }
     }
     private static void sortContacts() {
-        //implement this
+        //do this shit later
+//        System.out.println(
+//                "Select your sort field:\n" +
+//                "[0] Sort by name\n" +
+//                "[1] Sort by phone number\n" +
+//                "[2] Sort by email\n" +
+//                "[3] Sort by address");
+//        int userOption = userInputScanner.nextInt();
     }
     private static void saveContactsToFile() {
-        getFilePath();
+        System.out.print("Enter your file path: ");
+        String filePath = userInputScanner.nextLine();
         try {
             contactBook.save(filePath);
             System.out.printf("%d contacts saved to file at \"%s\".\n", contactBook.size(),
@@ -179,9 +184,5 @@ public class ContactManager {
         String exitMessage = "Exiting...";
         System.out.println(exitMessage);
         System.exit(0);
-    }
-    private static void getFilePath() {
-        System.out.print("Enter your file path: ");
-        filePath = userInputScanner.nextLine();
     }
 }

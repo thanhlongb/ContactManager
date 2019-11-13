@@ -1,5 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class ContactBuilder {
@@ -60,7 +62,26 @@ public class ContactBuilder {
         return searchResults;
     }
     public void sort() {
-        //implement this
+        quickSort(0, contacts.size() - 1);
+    }
+    private void quickSort(int p, int r) {
+        if (p < r) {
+            int q = quickSortPartition(p, r);
+            quickSort(p, q - 1);
+            quickSort(q + 1, r);
+        }
+    }
+    private int quickSortPartition(int p, int r) {
+        String x = this.contacts.get(r).getName();
+        int i = p - 1;
+        for (int j = p; j <= r - 1; j++) {
+            if (this.contacts.get(j).getName().compareTo(x) <= 0) {
+                i = i + 1;
+                Collections.swap(contacts, i, j);
+            }
+        }
+        Collections.swap(contacts, i + 1, r);
+        return i + 1;
     }
     public void save(String outputFilePath) throws IOException {
         FileWriter outputFile = new FileWriter(outputFilePath);
