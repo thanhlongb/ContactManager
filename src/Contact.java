@@ -1,13 +1,10 @@
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 public class Contact {
     public static final String DELIMITER = "; ";
     private String name = "";
     private String phone = "";
     private String email = "";
     private String address = "";
+    Contact () {};
     Contact (String rawInformation) throws IllegalArgumentException {
         String[] userInformation = rawInformation.split(DELIMITER);
         if (userInformation.length != 4) throw new IllegalArgumentException("E1. Invalid contact information.");

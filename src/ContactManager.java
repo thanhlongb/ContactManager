@@ -5,51 +5,36 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ContactManager {
-    private static String userInput = ""; //consider using StringBuffer/Builder
     private static ContactBuilder contactBook = new ContactBuilder();
     private static Scanner userInputScanner = new Scanner(System.in);
-    public static void main(String[] args) throws NoSuchAlgorithmException {
-        printUI();
+    public static void main(String[] args) {
         while (true) {
-            System.out.print("Select a function (1-9): ");
-            userInput = userInputScanner.nextLine();
-            if (!isValidUserInput()) {
-                System.out.println("Invalid user input.");
-                continue;
-            }
             operate();
         }
     }
-    private static void printUI() {
-        final String options =
-                "1. Load contacts from file\n" +
-                "2. View all contacts\n" +
-                "3. Add new contact\n" +
-                "4. Edit a contact\n" +
-                "5. Delete a contact\n" +
-                "6. Search contact list\n" +
-                "7. Sort contact list\n" +
-                "8. Save contacts to file\n" +
-                "9. Quit";
-        System.out.println(options);
-    }
-    private static boolean isValidUserInput() {
-        if (userInput.matches("[1-9]")) {
-            return true;
-        }
-        return false;
-    }
     private static void operate() {
-        switch (Integer.parseInt(userInput)) {
-            case 1: loadContactsFromFile(); break;
-            case 2: viewAllContacts(); break;
-            case 3: addNewContact(); break;
-            case 4: editContact(); break;
-            case 5: deleteContact(); break;
-            case 6: searchContacts(); break;
-            case 7: sortContacts(); break;
-            case 8: saveContactsToFile(); break;
-            case 9: quitProgram(); break;
+        String[] options = {
+            "Load contacts from file",
+            "View all contacts",
+            "Add new contact",
+            "Edit a contact",
+            "Delete a contact",
+            "Search contact list",
+            "Sort contact list",
+            "Save contacts to file",
+            "Quit"
+        };
+        int userOption = promptUserOption(options);
+        switch (userOption) {
+            case 0: loadContactsFromFile(); break;
+            case 1: viewAllContacts(); break;
+            case 2: addNewContact(); break;
+            case 3: editContact(); break;
+            case 4: deleteContact(); break;
+            case 5: searchContacts(); break;
+            case 6: sortContacts(); break;
+            case 7: saveContactsToFile(); break;
+            case 8: quitProgram(); break;
             default: break;
         }
     }
@@ -71,7 +56,7 @@ public class ContactManager {
                 System.out.printf("[%d] %s\n", i, allContacts.get(i));
             }
         } else {
-            System.out.println("No contact, yet.");
+            System.out.println("Doesn't have any contact to display.");
         }
     }
     private static void addNewContact() {
@@ -91,58 +76,49 @@ public class ContactManager {
         }
     }
     private static void editContact() {
-        int userOption = 0, contactID = 0;
-        System.out.print("Enter ID of the contact you want to edit: ");
+        int contactID = promptContactID();
+        Contact selectedContact;
         try {
-            contactID = userInputScanner.nextInt();
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input data type (supposed to be int).");
-            return;
-        }
-        try {
-            printContactInformation(contactBook.get(contactID));
+            selectedContact = contactBook.get(contactID);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
             return;
         }
-        System.out.print("Select the field you want to edit (0 to 3): ");
-        try {
-            userOption = userInputScanner.nextInt();
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input data type (supposed to be int).");
-            return;
-        }
+        String[] options = {
+                String.format("Name: %s", selectedContact.getName()),
+                String.format("Phone number: %s", selectedContact.getPhone()),
+                String.format("Email: %s", selectedContact.getEmail()),
+                String.format("Address: %s", selectedContact.getAddress())
+        };
+        int userOption = promptUserOption(options);
         System.out.print("Enter new value for the selected field: ");
         String newValue = userInputScanner.nextLine();
-        switch (userOption) {
-            case 0:
-                contactBook.editName(contactID, newValue);
-                break;
-            case 1:
-                contactBook.editPhone(contactID, newValue);
-                break;
-            case 2:
-                contactBook.editEmail(contactID, newValue);
-                break;
-            case 3:
-                contactBook.editAddress(contactID, newValue);
-                break;
-            default:
-                break;
+        try {
+            switch (userOption) {
+                case 0:
+                    contactBook.editName(contactID, newValue);
+                    break;
+                case 1:
+                    contactBook.editPhone(contactID, newValue);
+                    break;
+                case 2:
+                    contactBook.editEmail(contactID, newValue);
+                    break;
+                case 3:
+                    contactBook.editAddress(contactID, newValue);
+                    break;
+                default:
+                    break;
+            }
+            System.out.println("Contact edited.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
     }
-    private static void printContactInformation(Contact contact) {
-        System.out.printf("[0] %s\n[1] %s\n[2] %s\n[3] %s\n",
-                                            contact.getName(),
-                                            contact.getPhone(),
-                                            contact.getEmail(),
-                                            contact.getAddress());
-    }
     private static void deleteContact() {
-        System.out.print("Enter ID of the contact you want to delete: ");
-        String contactID = userInputScanner.nextLine();
+        int contactID = promptContactID();
         try {
-            contactBook.delete(Integer.parseInt(contactID));
+            contactBook.delete(contactID);
             System.out.println("Contact deleted.");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -188,7 +164,7 @@ public class ContactManager {
         String filePath = userInputScanner.nextLine();
         try {
             contactBook.save(filePath);
-            System.out.printf("%d contacts saved to file at \"%s\".\n", contactBook.size(),
+            System.out.printf("%d contacts saved to file: \"%s\".\n", contactBook.size(),
                                                                         filePath);
         } catch(IOException e) {
             System.out.println("Error with your file path.");
@@ -198,5 +174,36 @@ public class ContactManager {
         String exitMessage = "Exiting...";
         System.out.println(exitMessage);
         System.exit(0);
+    }
+    private static int promptContactID() {
+        int contactID = -1;
+        do {
+            System.out.print("Enter contact ID: ");
+            try {
+                contactID = userInputScanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println(e.getMessage());
+            } finally {
+                userInputScanner.nextLine();
+            }
+        } while (!contactBook.isValidContactID(contactID));
+        return contactID;
+    }
+    private static int promptUserOption(String[] options) {
+        int userOption = -1;
+        for (int i = 0; i < options.length; i++) {
+            System.out.printf("[%d] %s\n", i, options[i]);
+        }
+        do {
+            System.out.print("Enter your option: ");
+            try {
+                userOption = userInputScanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println(e.getMessage());
+            } finally {
+                userInputScanner.nextLine();
+            }
+        } while (userOption < 0 || userOption >= options.length);
+        return userOption;
     }
 }
