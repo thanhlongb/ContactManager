@@ -1,8 +1,5 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Scanner;
+import java.util.*;
 
 public class ContactBuilder {
     private ArrayList<Contact> contacts = new ArrayList<Contact>();
@@ -30,7 +27,7 @@ public class ContactBuilder {
         return this.contacts;
     }
     public Contact get(int contactID) throws IllegalArgumentException {
-        if (!isValidContactID(contactID)) throw new IllegalArgumentException("Invalid contact ID.");
+        if (!isValidContactID(contactID)) throw new IllegalArgumentException("E8. Invalid contact ID.");
         return this.contacts.get(contactID);
     }
     public void add(String name, String phone, String email, String address) throws IllegalArgumentException {
@@ -49,7 +46,7 @@ public class ContactBuilder {
         this.contacts.get(contactID).setAddress(newValue);
     }
     public void delete(int contactID) throws IllegalArgumentException {
-        if (!isValidContactID(contactID)) throw new IllegalArgumentException("Invalid contact ID.");
+        if (!isValidContactID(contactID)) throw new IllegalArgumentException("E9. Invalid contact ID.");
         this.contacts.remove(contactID);
     }
     public ArrayList<Integer> search(String query) {
@@ -61,27 +58,41 @@ public class ContactBuilder {
         }
         return searchResults;
     }
-    public void sort() {
-        quickSort(0, contacts.size() - 1);
-    }
-    private void quickSort(int p, int r) {
-        if (p < r) {
-            int q = quickSortPartition(p, r);
-            quickSort(p, q - 1);
-            quickSort(q + 1, r);
-        }
-    }
-    private int quickSortPartition(int p, int r) {
-        String x = this.contacts.get(r).getName();
-        int i = p - 1;
-        for (int j = p; j <= r - 1; j++) {
-            if (this.contacts.get(j).getName().compareTo(x) <= 0) {
-                i = i + 1;
-                Collections.swap(contacts, i, j);
+    //are these consider repetitive?
+    public void sortByName() {
+        Comparator<Contact> contactName =  new Comparator<Contact>() {
+            public int compare(Contact contact1, Contact contact2) {
+                return contact1.getName().compareTo(contact2.getName());
             }
-        }
-        Collections.swap(contacts, i + 1, r);
-        return i + 1;
+        };
+        Collections.sort(this.contacts, contactName);
+    }
+    public void sortByPhone() {
+        Comparator<Contact> contactPhone =  new Comparator<Contact>() {
+            public int compare(Contact contact1, Contact contact2) {
+                return contact1.getPhone().compareTo(contact2.getPhone());
+            }
+        };
+        Collections.sort(this.contacts, contactPhone);
+    }
+    public void sortByEmail() {
+        Comparator<Contact> contactEmail =  new Comparator<Contact>() {
+            public int compare(Contact contact1, Contact contact2) {
+                return contact1.getEmail().compareTo(contact2.getEmail());
+            }
+        };
+        Collections.sort(this.contacts, contactEmail);
+    }
+    public void sortByAddress() {
+        Comparator<Contact> contactAddress =  new Comparator<Contact>() {
+            public int compare(Contact contact1, Contact contact2) {
+                return contact1.getAddress().compareTo(contact2.getAddress());
+            }
+        };
+        Collections.sort(this.contacts, contactAddress);
+    }
+    public void reverseOrder() {
+        Collections.reverse(this.contacts);
     }
     public void save(String outputFilePath) throws IOException {
         FileWriter outputFile = new FileWriter(outputFilePath);

@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -7,7 +8,7 @@ public class ContactManager {
     private static String userInput = ""; //consider using StringBuffer/Builder
     private static ContactBuilder contactBook = new ContactBuilder();
     private static Scanner userInputScanner = new Scanner(System.in);
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchAlgorithmException {
         printUI();
         while (true) {
             System.out.print("Select a function (1-9): ");
@@ -160,14 +161,27 @@ public class ContactManager {
         }
     }
     private static void sortContacts() {
-        //do this shit later
-//        System.out.println(
-//                "Select your sort field:\n" +
-//                "[0] Sort by name\n" +
-//                "[1] Sort by phone number\n" +
-//                "[2] Sort by email\n" +
-//                "[3] Sort by address");
-//        int userOption = userInputScanner.nextInt();
+        System.out.println(
+                "Select your sort field:\n" +
+                "[0] Sort by name\n" +
+                "[1] Sort by phone number\n" +
+                "[2] Sort by email\n" +
+                "[3] Sort by address");
+        int userOption = userInputScanner.nextInt();
+        switch (userOption) {
+            case 0: contactBook.sortByName(); break;
+            case 1: contactBook.sortByPhone(); break;
+            case 2: contactBook.sortByEmail(); break;
+            case 3: contactBook.sortByAddress(); break;
+            default: break;
+        }
+        System.out.println(
+                "Select your sort order:\n" +
+                        "[0] Ascending\n" +
+                        "[1] Descending");
+        int sortOrder = userInputScanner.nextInt();
+        if (sortOrder == 1) contactBook.reverseOrder();
+        System.out.println("Contacts sorted.");
     }
     private static void saveContactsToFile() {
         System.out.print("Enter your file path: ");
