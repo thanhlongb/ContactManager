@@ -4,6 +4,7 @@ public class Contact {
     private String phone = "";
     private String email = "";
     private String address = "";
+    Contact () {};
     Contact (String rawInformation) throws IllegalArgumentException {
         String[] userInformation = rawInformation.split(DELIMITER);
         if (userInformation.length != 4) throw new IllegalArgumentException("Invalid contact information.");

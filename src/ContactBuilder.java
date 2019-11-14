@@ -9,8 +9,7 @@ public class ContactBuilder {
     public ContactBuilder() {}
     public int load(String inputFilePath) throws IOException {
         int addedContactCount = 0;
-        File inputFile = new File(inputFilePath);
-        Scanner inputFileScanner = new Scanner(inputFile);
+        Scanner inputFileScanner = new Scanner(new File(inputFilePath));
         while (inputFileScanner.hasNextLine()) {
             String rawInformation = inputFileScanner.nextLine();
             try {
@@ -90,10 +89,11 @@ public class ContactBuilder {
         }
         outputFile.close();
     }
-    private boolean isValidContactID(int contactID) {
-        if (contactID < 0 || contactID > this.contacts.size()) {
+    public boolean isValidContactID(int contactID) {
+        if (contactID < 0 || contactID >= this.contacts.size()) {
             return false;
         }
         return true;
     }
+
 }
