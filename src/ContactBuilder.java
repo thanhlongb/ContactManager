@@ -1,3 +1,5 @@
+import javassist.bytecode.DuplicateMemberException;
+
 import java.io.*;
 import java.util.*;
 
@@ -29,8 +31,11 @@ public class ContactBuilder {
         if (!isValidContactID(contactID)) throw new IllegalArgumentException("E8. Invalid contact ID.");
         return this.contacts.get(contactID);
     }
-    public void add(String name, String phone, String email, String address) throws IllegalArgumentException {
-        this.contacts.add(new Contact(name, phone, email, address));
+    public void add(String name, String phone, String email, String address) throws IllegalArgumentException,
+                                                                                    DuplicateMemberException {
+        Contact newContact = new Contact(name, phone, email, address);
+        if (isDuplicate(newContact)) throw new DuplicateMemberException("Can't add due to duplication.");
+        this.contacts.add(newContact);
     }
     public void editName(int contactID, String newValue) throws IllegalArgumentException {
         this.contacts.get(contactID).setName(newValue);
@@ -57,7 +62,6 @@ public class ContactBuilder {
         }
         return searchResults;
     }
-    //are these consider repetitive?
     public void sortByName() {
         Comparator<Contact> contactName =  new Comparator<Contact>() {
             public int compare(Contact contact1, Contact contact2) {
@@ -105,6 +109,14 @@ public class ContactBuilder {
             return false;
         }
         return true;
+    }
+    private boolean isDuplicate(Contact newContact) {
+        for (Contact contact:this.contacts) {
+            if (contact.toString().matches(newContact.toString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

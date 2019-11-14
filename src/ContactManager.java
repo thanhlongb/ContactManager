@@ -1,15 +1,19 @@
+import javassist.bytecode.DuplicateMemberException;
+
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ContactManager {
+    private static String filePath = "";
     private static ContactBuilder contactBook = new ContactBuilder();
     private static Scanner userInputScanner = new Scanner(System.in);
     public static void main(String[] args) {
         while (true) {
             operate();
+            System.out.print("Press ENTER to continue...");
+            userInputScanner.nextLine();
         }
     }
     private static void operate() {
@@ -24,6 +28,7 @@ public class ContactManager {
             "Save contacts to file",
             "Quit"
         };
+        System.out.println("Select the operation you want to execute:");
         int userOption = promptUserOption(options);
         switch (userOption) {
             case 0: loadContactsFromFile(); break;
@@ -41,7 +46,7 @@ public class ContactManager {
     private static void loadContactsFromFile() {
         int loadedContactCount = 0;
         System.out.print("Enter your file path: ");
-        String filePath = userInputScanner.nextLine();
+        filePath = userInputScanner.nextLine();
         try {
             loadedContactCount = contactBook.load(filePath);
             System.out.printf("%d contacts loaded.\n", loadedContactCount);
@@ -73,6 +78,8 @@ public class ContactManager {
             System.out.println("Contact added.");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
+        } catch (DuplicateMemberException e) {
+            System.out.println(e.getMessage());
         }
     }
     private static void editContact() {
@@ -90,25 +97,17 @@ public class ContactManager {
                 String.format("Email: %s", selectedContact.getEmail()),
                 String.format("Address: %s", selectedContact.getAddress())
         };
+        System.out.println("Select the data field to be changed: ");
         int userOption = promptUserOption(options);
         System.out.print("Enter new value for the selected field: ");
         String newValue = userInputScanner.nextLine();
         try {
             switch (userOption) {
-                case 0:
-                    contactBook.editName(contactID, newValue);
-                    break;
-                case 1:
-                    contactBook.editPhone(contactID, newValue);
-                    break;
-                case 2:
-                    contactBook.editEmail(contactID, newValue);
-                    break;
-                case 3:
-                    contactBook.editAddress(contactID, newValue);
-                    break;
-                default:
-                    break;
+                case 0: contactBook.editName(contactID, newValue); break;
+                case 1: contactBook.editPhone(contactID, newValue); break;
+                case 2: contactBook.editEmail(contactID, newValue); break;
+                case 3: contactBook.editAddress(contactID, newValue); break;
+                default: break;
             }
             System.out.println("Contact edited.");
         } catch (IllegalArgumentException e) {
@@ -137,47 +136,49 @@ public class ContactManager {
         }
     }
     private static void sortContacts() {
-        System.out.println(
-                "Select your sort field:\n" +
-                "[0] Sort by name\n" +
-                "[1] Sort by phone number\n" +
-                "[2] Sort by email\n" +
-                "[3] Sort by address");
-        int userOption = userInputScanner.nextInt();
-        switch (userOption) {
+        String[] options = {
+                "Sort by name",
+                "Sort by phone number",
+                "Sort by email",
+                "Sort by address"};
+        System.out.println("Select which data field to sort:");
+        int sortDataField = promptUserOption(options);
+        switch (sortDataField) {
             case 0: contactBook.sortByName(); break;
             case 1: contactBook.sortByPhone(); break;
             case 2: contactBook.sortByEmail(); break;
             case 3: contactBook.sortByAddress(); break;
             default: break;
         }
-        System.out.println(
-                "Select your sort order:\n" +
-                        "[0] Ascending\n" +
-                        "[1] Descending");
-        int sortOrder = userInputScanner.nextInt();
+        options = new String[]{
+                "Ascending",
+                "Descending"};
+        System.out.println("Select sort order: ");
+        int sortOrder = promptUserOption(options);
         if (sortOrder == 1) contactBook.reverseOrder();
         System.out.println("Contacts sorted.");
     }
     private static void saveContactsToFile() {
-        System.out.print("Enter your file path: ");
-        String filePath = userInputScanner.nextLine();
+        if (filePath.matches("")) {
+            System.out.print("Enter your output file path: ");
+            filePath = userInputScanner.nextLine();
+        }
         try {
             contactBook.save(filePath);
             System.out.printf("%d contacts saved to file: \"%s\".\n", contactBook.size(),
-                                                                        filePath);
+                                                                      filePath);
         } catch(IOException e) {
             System.out.println("Error with your file path.");
         }
     }
     private static void quitProgram() {
-        String exitMessage = "Exiting...";
+        String exitMessage = "Exiting... Good bye!";
         System.out.println(exitMessage);
         System.exit(0);
     }
     private static int promptContactID() {
         int contactID = -1;
-        do {
+        while (true) {
             System.out.print("Enter contact ID: ");
             try {
                 contactID = userInputScanner.nextInt();
@@ -186,7 +187,12 @@ public class ContactManager {
             } finally {
                 userInputScanner.nextLine();
             }
-        } while (!contactBook.isValidContactID(contactID));
+            if (contactBook.isValidContactID(contactID)) {
+                break;
+            } else {
+                System.out.println("You've entered an invalid contact ID, please try again.");
+            }
+        }
         return contactID;
     }
     private static int promptUserOption(String[] options) {
@@ -194,7 +200,7 @@ public class ContactManager {
         for (int i = 0; i < options.length; i++) {
             System.out.printf("[%d] %s\n", i, options[i]);
         }
-        do {
+        while (true) {
             System.out.print("Enter your option: ");
             try {
                 userOption = userInputScanner.nextInt();
@@ -203,7 +209,12 @@ public class ContactManager {
             } finally {
                 userInputScanner.nextLine();
             }
-        } while (userOption < 0 || userOption >= options.length);
+            if (userOption >= 0 && userOption < options.length) {
+                break;
+            } else {
+                System.out.println("You've entered an invalid option, please try again.");
+            }
+        }
         return userOption;
     }
 }
