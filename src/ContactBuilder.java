@@ -1,20 +1,41 @@
-import javassist.bytecode.DuplicateMemberException;
+/*
+  RMIT University Vietnam
+  Course: INTE2512 Object-Oriented Programming
+  Semester: 2019C
+  Assessment: Assignment 1
+  Author: Bui Thanh Long
+  ID: 3748575
+  Created  date: 11/11/2019
+  Last modified: 16/11/2019
+  Acknowledgement:
+  - Comparator implementation (line 88, 96, 104, 112): https://stackoverflow.com/questions/10396970/sort-a-list-that-contains-a-custom-class
+*/
 
 import java.io.*;
 import java.util.*;
 
 public class ContactBuilder {
-    private ArrayList<Contact> contacts = new ArrayList<Contact>();
-    public ContactBuilder() {}
+    private ArrayList<Contact> contacts;
+    public ContactBuilder() {
+        this.contacts = new ArrayList<>();
+    }
     public int load(String inputFilePath) throws IOException {
         int addedContactCount = 0;
         Scanner inputFileScanner = new Scanner(new File(inputFilePath));
         while (inputFileScanner.hasNextLine()) {
             String rawInformation = inputFileScanner.nextLine();
+            Contact newContact;
             try {
-                this.contacts.add(new Contact(rawInformation));
+                newContact = new Contact(rawInformation);
             } catch (IllegalArgumentException e) {
                 throw new IOException("Contact record at line " + (addedContactCount + 1) + " has invalid format.");
+            }
+            try {
+                this.add(newContact);
+            } catch (IllegalArgumentException e) {
+                // contact duplication found,
+                // skipping this contact record
+                continue;
             }
             addedContactCount++;
         }
@@ -22,19 +43,20 @@ public class ContactBuilder {
         return addedContactCount;
     }
     public int size() {
-        return this.contacts.size();
+        return (this.contacts.size());
+    }
+    public boolean isEmpty() {
+        return (this.contacts.size() == 0);
+    }
+    public Contact get(int contactID) throws IllegalArgumentException {
+        if (!isValidContactID(contactID)) throw new IllegalArgumentException("Invalid contact ID.");
+        return this.contacts.get(contactID);
     }
     public ArrayList<Contact> getAll() {
         return this.contacts;
     }
-    public Contact get(int contactID) throws IllegalArgumentException {
-        if (!isValidContactID(contactID)) throw new IllegalArgumentException("E8. Invalid contact ID.");
-        return this.contacts.get(contactID);
-    }
-    public void add(String name, String phone, String email, String address) throws IllegalArgumentException,
-                                                                                    DuplicateMemberException {
-        Contact newContact = new Contact(name, phone, email, address);
-        if (isDuplicate(newContact)) throw new DuplicateMemberException("Can't add due to duplication.");
+    public void add(Contact newContact) throws IllegalArgumentException {
+        if (isDuplicate(newContact)) throw new IllegalArgumentException("Can't add due to duplication.");
         this.contacts.add(newContact);
     }
     public void editName(int contactID, String newValue) throws IllegalArgumentException {
@@ -50,11 +72,11 @@ public class ContactBuilder {
         this.contacts.get(contactID).setAddress(newValue);
     }
     public void delete(int contactID) throws IllegalArgumentException {
-        if (!isValidContactID(contactID)) throw new IllegalArgumentException("E9. Invalid contact ID.");
+        if (!isValidContactID(contactID)) throw new IllegalArgumentException("Invalid contact ID.");
         this.contacts.remove(contactID);
     }
     public ArrayList<Integer> search(String query) {
-        ArrayList<Integer> searchResults = new ArrayList<Integer>();
+        ArrayList<Integer> searchResults = new ArrayList<>();
         for (Contact contact:this.contacts) {
             if (contact.toString().matches(".*" + query + ".*")) {
                 searchResults.add(this.contacts.indexOf(contact));
@@ -104,11 +126,8 @@ public class ContactBuilder {
         }
         outputFile.close();
     }
-    public boolean isValidContactID(int contactID) {
-        if (contactID < 0 || contactID >= this.contacts.size()) {
-            return false;
-        }
-        return true;
+    private boolean isValidContactID(int contactID) {
+        return (contactID >= 0 && contactID < this.contacts.size());
     }
     private boolean isDuplicate(Contact newContact) {
         for (Contact contact:this.contacts) {
@@ -118,5 +137,4 @@ public class ContactBuilder {
         }
         return false;
     }
-
 }
